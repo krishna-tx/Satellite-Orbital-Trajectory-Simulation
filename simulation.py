@@ -1,5 +1,3 @@
-# Possible TODO's: implement feature to see force vectors, change so that planets can start from anywhere
-
 import pygame
 import numpy as np
 pygame.init()
@@ -26,7 +24,7 @@ class Sun:
     def draw(self, window):
         pygame.draw.circle(window, self.color, (self.x, self.y), self.radius)
 
-class Planet:
+class Satellite:
     def __init__(self, x, y, radius, mass, color):
         self.x = x
         self.y = y
@@ -74,7 +72,7 @@ class Planet:
 
             pygame.draw.lines(window, self.color, False, scaled_points, 2)
 
-        # draw planet
+        # draw satellite
         pygame.draw.circle(window, self.color, (self.x, self.y), self.radius)
 
         # show acceleration vector
@@ -93,15 +91,15 @@ class Planet:
 
 def main():
     window = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Planet Simulation")
+    pygame.display.set_caption("Satellite Simulation")
 
     running = True
     clock = pygame.time.Clock()
 
     sun = Sun(WIDTH // 2, HEIGHT // 2, 50, 5e4, YELLOW)
 
-    planet = None
-    planet_init = False
+    satellite = None
+    satellite_init = False
     velocity_init = False
 
     while running:
@@ -113,36 +111,36 @@ def main():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 if velocity_init:
-                    planet = None
-                    planet_init = False
+                    satellite = None
+                    satellite_init = False
                     velocity_init = False
-                if not planet_init:
-                    planet = Planet(mouse_x, mouse_y, 10, 10, GREEN)
-                    planet_init = True
+                if not satellite_init:
+                    satellite = Satellite(mouse_x, mouse_y, 10, 10, GREEN)
+                    satellite_init = True
                     velocity_init = False
                 else:
-                    planet.v_x = (mouse_x - planet.x) / (TIMESTEP * 5e1)
-                    planet.v_y = (mouse_y - planet.y) / (TIMESTEP * 5e1)
+                    satellite.v_x = (mouse_x - satellite.x) / (TIMESTEP * 5e1)
+                    satellite.v_y = (mouse_y - satellite.y) / (TIMESTEP * 5e1)
                     velocity_init = True
 
         # pygame.draw.circle(window, YELLOW, (SUN_X, SUN_Y), SUN_RADIUS) # sun
         sun.draw(window)
 
         # collision detection
-        if planet_init:
-            collision_range = sun.radius + planet.radius
-            if abs(sun.x - planet.x) <= collision_range and abs(sun.y - planet.y) <= collision_range: # collision detected
-                planet = None
-                planet_init = False
+        if satellite_init:
+            collision_range = sun.radius + satellite.radius
+            if abs(sun.x - satellite.x) <= collision_range and abs(sun.y - satellite.y) <= collision_range: # collision detected
+                satellite = None
+                satellite_init = False
                 velocity_init = False
 
         if velocity_init:
-            planet.update_coors(sun)
-        if planet_init:
+            satellite.update_coors(sun)
+        if satellite_init:
             if not velocity_init:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
-                pygame.draw.polygon(window, WHITE, [(planet.x, planet.y), (mouse_x, mouse_y)], width=2)
-            planet.draw(window)
+                pygame.draw.polygon(window, WHITE, [(satellite.x, satellite.y), (mouse_x, mouse_y)], width=2)
+            satellite.draw(window)
             
 
         pygame.display.update()
